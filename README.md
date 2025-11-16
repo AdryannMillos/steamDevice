@@ -17,6 +17,7 @@ A chatbot application that provides information about Steam devices. The bot is 
 
 * Use **streams** for incremental responses.
 * Integrate **Redis** for more persistent caching.
+* Add a cron job to run the evals or incorporate it in a Pipeline
 
 ---
 
