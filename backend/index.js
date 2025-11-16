@@ -4,6 +4,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import chatRoute from "./src/routes/chat.js";
 import evalRoute from "./src/routes/evals.js";
+import { runSteamEval } from "./src/services/evals.js";
 
 dotenv.config();
 
@@ -42,3 +43,5 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+// runSteamEval()

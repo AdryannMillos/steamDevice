@@ -1,13 +1,49 @@
 {
-  "eval_name": "steam_device_basic",
+  "eval_name": "steam_new_devices",
   "cases": [
     {
-      "input": "What is the battery life of the Steam device?",
-      "ideal": "Up to X hours on a single charge."
+      "input": "What is the battery life of the Steam Frame headset?",
+      "ideal": "The Steam Frame headset features a multi-cell segmented battery with a capacity of 21.6Wh, but the specific battery life duration has not been explicitly detailed. It is designed to provide a contoured fit and a good balance for extended gaming sessions. For precise battery life estimates, you may have to wait for official announcements or tests once it's released."
     },
     {
-      "input": "Does it support external controllers?",
-      "ideal": "Yes, it supports Bluetooth controllers and USB controllers."
+      "input": "Can the Steam Controller be connected via Bluetooth?",
+      "ideal": "No, the Steam Controller cannot be connected via Bluetooth. It uses a proprietary wireless technology for connectivity."
+    },
+    {
+      "input": "Does the Steam Machine support 4K gaming?",
+      "ideal": "Yes, the Steam Machine is designed to support 4K gaming at 60 FPS when using upscaling technology like FSR. It has the necessary hardware to achieve this performance level."
+    },
+    {
+      "input": "What type of CPU and GPU does the Steam Machine have?",
+      "ideal": "The Steam Machine features a semi-custom AMD solution with a Zen 4 CPU, which has peak frequencies of 4.8 GHz boost. It is coupled with an RDNA3 GPU running at a sustained clock of 2.45 GHz."
+    },
+    {
+      "input": "Can the Steam Frame stream VR games from the Steam Machine?",
+      "ideal": "Yes, the Steam Frame can stream VR games from the Steam Machine. To do this, you'll need to plug the included Steam Frame wireless adapter into one of the front USB-C ports on the Steam Machine."
+    },
+    {
+      "input": "Does the Steam Controller have programmable buttons?",
+      "ideal": "Yes, the Steam Controller features programmable buttons. You can customize the button mapping through the Steam client, allowing you to tailor the controls to your liking for various games."
+    },
+    {
+      "input": "Can the Steam Machine connect to a TV?",
+      "ideal": "Yes, the Steam Machine can connect to a TV. It is designed to function as a living room entertainment device, allowing users to play games on a larger screen."
+    },
+    {
+      "input": "Does the Steam Machine have upgradeable storage?",
+      "ideal": "Yes, the Steam Machine has upgradeable storage. It features a design that allows for easy storage upgrades, and it can run SteamOS, providing a similar experience to other Steam devices."
+    },
+    {
+      "input": "Does the Steam Frame support multiple play modes?",
+      "ideal": "Yes, the Steam Frame supports multiple play modes, allowing for flexibility in gaming experiences."
+    },
+    {
+      "input": "How does the Steam Controller Puck work?",
+      "ideal": "The Steam Controller Puck functions as both a wireless adapter and a magnetic charging dock for the Steam Controller. It utilizes a proprietary 2.4GHz wireless connection to provide low latency and a high polling rate. The magnetic attachment allows the controller to snap on and off easily, ensuring it connects only in the correct orientation. The Puck also supports re-pairing to different devices, enabling users to switch between systems like a Steam Machine and a desktop PC without additional setup."
+    },
+    {
+      "input": "Does the Steam Frame have a dual-radio system?",
+      "ideal": "Yes, the Steam Frame features a dual-radio system. It includes dedicated antennas for Wi-Fi 6E and Bluetooth, as well as a separate 2.4GHz radio for the Steam Controller. This design ensures robust signal reception and minimizes interference between devices."
     }
   ]
 }
