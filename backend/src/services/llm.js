@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const cache = new Map();
+
 export async function queryLLM({ message, context }) {
-const system = `
+  const system = `
 You are a helpful assistant that ONLY answers questions about Steam gaming devices (Steam Machine, Steam Deck, Steam Controller).  
 
 - If the user only greets you, greet them back and ask them to ask questions about Steam devices.  
@@ -13,7 +15,22 @@ You are a helpful assistant that ONLY answers questions about Steam gaming devic
 - Keep all answers concise and factual.
 `;
 
-  return await callOpenAI({ message, context, system });
+  const cacheKey = generateCacheKey(message, context);
+  if (cache.has(cacheKey)) {
+    console.log("✅ Cache hit");
+    return cache.get(cacheKey);
+  }
+
+  const response = await callOpenAI({ message, context, system });
+
+  cache.set(cacheKey, response);
+
+  return response;
+}
+
+function generateCacheKey(message, context) {
+  const contextStr = context ? context.join("|") : "";
+  return `${message.trim().toLowerCase()}|${contextStr.trim().toLowerCase()}`;
 }
 
 async function callOpenAI({ message, context, system }) {
