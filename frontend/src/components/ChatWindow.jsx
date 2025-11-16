@@ -28,15 +28,24 @@ export default function ChatWindow() {
       };
 
       setMessages((prev) => [...prev, botMsg]);
-    } catch (error) {
-      const errMsg = {
-        role: "assistant",
-        content: "⚠️ Error contacting server.",
-      };
-      setMessages((prev) => [...prev, errMsg]);
-      console.log(error);
-    }
+} catch (error) {
+  let errMsg;
 
+  if (error.response?.status === 429) {
+    errMsg = {
+      role: "assistant",
+      content: "⚠️ Hey man, take a break! No one really wants to know more than 5 questions about the topic per minute!",
+    };
+  } else {
+    errMsg = {
+      role: "assistant",
+      content: "⚠️ Error contacting server.",
+    };
+  }
+
+  setMessages((prev) => [...prev, errMsg]);
+  console.log(error);
+}
     setLoading(false);
   }
 
