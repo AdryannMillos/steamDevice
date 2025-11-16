@@ -1,0 +1,13 @@
+{
+  "eval_name": "steam_device_basic",
+  "cases": [
+    {
+      "input": "What is the battery life of the Steam device?",
+      "ideal": "Up to X hours on a single charge."
+    },
+    {
+      "input": "Does it support external controllers?",
+      "ideal": "Yes, it supports Bluetooth controllers and USB controllers."
+    }
+  ]
+}
