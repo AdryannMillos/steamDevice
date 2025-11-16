@@ -27,7 +27,7 @@ A chatbot application that provides information about Steam devices. The bot is 
 1. Clone the project:
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/AdryannMillos/steamDevice.git
 ```
 
 2. Navigate to the backend folder:
