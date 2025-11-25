@@ -12,7 +12,6 @@ export default function ChatWindow() {
     if (!input.trim()) return;
 
     const userMsg = { role: "user", content: input };
-
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);

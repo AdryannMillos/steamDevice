@@ -3,7 +3,6 @@ import fs from "fs/promises";
 import path from "path";
 import OpenAI from "openai";
 import { load } from "cheerio";
-import axios from "axios";
 import { fileURLToPath } from "url";
 
 dotenv.config();
@@ -12,7 +11,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const HTML_FILE = path.resolve(__dirname, "../data/steam.html");
-const POLYGON_URL = "https://www.polygon.com/steam-machine-specs-analysis/";
 const CACHE_FILE = path.resolve(__dirname, "../data/steam_docs_cache.json");
 const EMB_CACHE_FILE = path.resolve(__dirname, "../data/steam_docs_embeddings.json");
 const TOP_N = parseInt(process.env.TOP_N_DOCS || "3");
@@ -23,67 +21,72 @@ async function parseHTMLFile(filePath) {
   try {
     const html = await fs.readFile(filePath, "utf-8");
     const $ = load(html);
-    return $("p, h1, h2, h3, li").map((i, el) => $(el).text().trim()).get().filter(Boolean);
-  } catch {
+
+    const textBlocks = $("p, h1, h2, h3, li")
+      .map((i, el) => $(el).text().trim())
+      .get()
+      .filter(Boolean);
+
+    return textBlocks;
+  } catch (err) {
+    console.error("Failed to read/parse HTML file:", err);
     return [];
   }
 }
 
-async function fetchPolygonArticle() {
-  try {
-    const resp = await axios.get(POLYGON_URL);
-    const $ = load(resp.data);
-    return $("p, h1, h2, h3, li").map((i, el) => $(el).text().trim()).get().filter(Boolean);
-  } catch {
-    return [];
-  }
-}
-
-export async function loadSteamDocs() {
+async function loadSteamDocs() {
   if (docs) return docs;
 
-  const cached = await fs.readFile(CACHE_FILE, "utf-8").catch(() => null);
-  if (cached) {
-    docs = JSON.parse(cached);
+  try {
+    const cached = await fs.readFile(CACHE_FILE, "utf-8").catch(() => null);
+    if (cached) {
+      docs = JSON.parse(cached);
+      return docs;
+    }
+
+    docs = await parseHTMLFile(HTML_FILE);
+
+    await fs.mkdir(path.dirname(CACHE_FILE), { recursive: true });
+    await fs.writeFile(CACHE_FILE, JSON.stringify(docs, null, 2), "utf-8");
+    console.log("✅ Steam docs cache created at:", CACHE_FILE);
+
     return docs;
+  } catch (err) {
+    console.error("Error loading Steam docs:", err);
+    return [];
   }
-
-  const localDocs = await parseHTMLFile(HTML_FILE);
-  const polygonDocs = await fetchPolygonArticle();
-
-
-
-  docs = [...localDocs, ...polygonDocs];
-
-  await fs.mkdir(path.dirname(CACHE_FILE), { recursive: true });
-  await fs.writeFile(CACHE_FILE, JSON.stringify(docs, null, 2), "utf-8");
-
-  return docs;
 }
 
-export async function loadEmbeddings(client) {
+async function loadEmbeddings(client) {
   if (global._steamEmbeddings) return global._steamEmbeddings;
 
-  await loadSteamDocs();
+  try {
+    const cached = await fs.readFile(EMB_CACHE_FILE, "utf-8").catch(() => null);
+    if (cached) {
+      global._steamEmbeddings = JSON.parse(cached);
+      return global._steamEmbeddings;
+    }
 
-  const cached = await fs.readFile(EMB_CACHE_FILE, "utf-8").catch(() => null);
-  if (cached) {
-    global._steamEmbeddings = JSON.parse(cached);
-    return global._steamEmbeddings;
+    const embeddings = await Promise.all(
+      docs.map(async (d) => {
+        const r = await client.embeddings.create({
+          model: "text-embedding-3-small",
+          input: d,
+        });
+        return { text: d, emb: r.data[0].embedding };
+      })
+    );
+
+    await fs.mkdir(path.dirname(EMB_CACHE_FILE), { recursive: true });
+    await fs.writeFile(EMB_CACHE_FILE, JSON.stringify(embeddings, null, 2), "utf-8");
+    console.log("✅ Embeddings cache created at:", EMB_CACHE_FILE);
+
+    global._steamEmbeddings = embeddings;
+    return embeddings;
+  } catch (err) {
+    console.error("Failed to compute/load embeddings:", err);
+    return [];
   }
-
-  const embeddings = await Promise.all(
-    docs.map(async (d) => {
-      const r = await client.embeddings.create({ model: "text-embedding-3-small", input: d });
-      return { text: d, emb: r.data[0].embedding };
-    })
-  );
-
-  await fs.mkdir(path.dirname(EMB_CACHE_FILE), { recursive: true });
-  await fs.writeFile(EMB_CACHE_FILE, JSON.stringify(embeddings, null, 2), "utf-8");
-
-  global._steamEmbeddings = embeddings;
-  return embeddings;
 }
 
 function cosineSimilarity(a, b) {
@@ -100,15 +103,28 @@ export async function retrieveContextIfNeeded(query) {
   const openaiKey = process.env.OPENAI_API_KEY;
   if (!openaiKey) return [];
 
+  await loadSteamDocs();
   const client = new OpenAI({ apiKey: openaiKey });
   const embeddings = await loadEmbeddings(client);
 
-  const qEmb = (await client.embeddings.create({ model: "text-embedding-3-small", input: query }))
-    .data[0].embedding;
+  let qEmb;
+  try {
+    const embResp = await client.embeddings.create({
+      model: "text-embedding-3-small",
+      input: query,
+    });
+    qEmb = embResp.data[0].embedding;
+  } catch (err) {
+    console.error("Failed to generate query embedding:", err);
+    return [];
+  }
 
-  const scored = embeddings
-    .map(d => ({ score: cosineSimilarity(d.emb, qEmb), text: d.text }))
-    .sort((a, b) => b.score - a.score);
+  const scored = embeddings.map((d) => ({
+    score: cosineSimilarity(d.emb, qEmb),
+    text: d.text,
+  }));
 
-  return scored.slice(0, TOP_N).map(s => s.text);
+  scored.sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, TOP_N).map((s) => s.text);
 }
