@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { api } from "../services/api";
 import "./ChatWindow.css";
 
@@ -72,7 +73,11 @@ export default function ChatWindow() {
             key={idx}
             className={`message ${msg.role === "user" ? "user" : "bot"}`}
           >
-            {msg.content}
+            {msg.role === "assistant" ? (
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
+            ) : (
+              msg.content
+            )}
           </div>
         ))}
 
