@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch index.js "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@arizeai/openinference-instrumentation-openai": "^4.0.0",
+    "@opentelemetry/instrumentation": "^0.208.0",
+    "@opentelemetry/sdk-trace-node": "^2.2.0",
+    "axios": "^1.13.2",
+    "body-parser": "^2.2.0",
+    "cheerio": "^1.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "langsmith": "^0.3.79",
+    "node-fetch": "^3.3.2",
+    "openai": "^6.9.0"
+  }
+}
